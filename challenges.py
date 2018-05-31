@@ -588,6 +588,9 @@ group by Track.AlbumId;
     join to the Track table to bring in the Track Name,
     and filter to find the deatils for "The Woman King"
     Expected : 3.98
+    
+    select Track.Name, sum(InvoiceLine.UnitPrice * InvoiceLine.Quantity) from InvoiceLine join Track on InvoiceLine.TrackId = Track.TrackId where Track.Name = "The Woman King";
+    
 */
 /*
     GOLD CHALLENGES
@@ -601,3 +604,253 @@ group by Track.AlbumId;
     Metallica         112
     Deep Purple     92
  */
+ 
+ 
+ -- INSERTING DATA WITH SQL
+
+
+/*
+  So far we've focused on the SQL 'SELECT' command that lets us get data out of our database.
+  Variations of the SELECT command allow us to filte, order, and aggregate the data.
+
+  Now, we're going to look at the SQL 'INSERT' command, which, as you might have guessed, allows us
+  add new data to the database.
+*/
+
+
+/*
+  An Insert statement consists of the table we want to insert into,
+  the columns with than table that we want to set values for,
+  and the values for those columns.
+
+  Let's start by inserting a new media type.
+  We insert into the MediaType table.
+  We insert into just the 'Name' column, the id will be generated automatically.
+  We specify a value of "Test Media Type 1" for the name of the media type.
+  If you run this statement multiple times,
+  you'll get multiple new rows, with the same Name,
+  but different MediaTypeIds
+ */
+insert into MediaType (Name) values ("Test Media Type 1");
+
+
+
+/*
+  Artist 150 is U2. If you look in the Album Table you'll see some Albums are missing.
+  Let's insert the Album "Boy".
+  To do this we need to insert both the Title of the Album ("Boy"), and the ArtistId (150)
+*/
+insert into Album (Title, ArtistId)
+  values ("Boy", 150);
+
+*/
+you can update data - use: update eg.: update Track set UnitPrice =0.98 where Unit price = 0.99; this will change all the tracks in the Track table that are = 0.99 to 0.98.
+
+update Track set UnitPrice = 0.99, Name = "My New Song" where TrackId = 3003; this will update unit price and name for song with TrackId 3003
+
+update Track join Album on Track.AlbumId = Album.AlbumId set Track.UnitPrice = 1 where Album.Title="Rattle And Hum"; this updates the track table to have a price of 1 where the title is "Rattle and Hum"
+
+
+/*
+  Inserting a row in the Album table is fine, but the album won't have any tracks unless we insert into the
+  Track table. The Track table has quite a few more columns than album, so we have more data to insert.
+  You can see the track listing here: https://en.wikipedia.org/wiki/Boy_(album)#Track_listing
+*/
+
+insert into Track (Name, AlbumId, MediaTypeId, GenreId, Composer, Milliseconds, Bytes, UnitPrice)
+  values(
+    -- insert list of values here
+  );
+
+/*
+  So, where to the list of Values come from?
+
+  The Name of the track can be gotten from the Track Listing.
+  Set the Composer to 'U2'.
+  You can also get Milliseconds from the Track Listing above.
+  Set Bytes to 1234 for all tracks. This isn't strictly speaking correct, but will suffice.
+  Set UnitPrice to 0.99
+  That leaves AlbumId, MediaTypeId, and GenreId. All of these are foreign keys to other tables.
+  You'll need to look in those tables to get the values we want to insert.
+  You need to find:
+    The AlbumId of the Album "Boy"
+    The MediaTypeId of the MediaType "Prodected AAC audio file"
+    The GenreId of the Genre "Rock"
+  We could have used any MediaType and Genre, but the Album has to be the "Boy" album we created above.
+  Below I have listed an example of the insert statement. Make sure you actually use the ID's
+ */
+
+-- Get the MediaTypeId
+-- Expected : 348
+select AlbumId from Album where Title = "Boy";
+
+-- Get the MediaTypeId
+-- Expected : 2
+select MediaTypeId from MediaType where Name = "Protected AAC audio file";
+
+-- Get the GenreId
+-- Expected : 1
+select GenreId from Genre where Name = "Rock";
+
+-- Insert a Track
+insert into Track (Name, AlbumId, MediaTypeId, GenreId, Composer, Milliseconds, Bytes, UnitPrice)
+  values("I Will Follow", 348, 2, 1, "U2", 220000, 1234, 0.99);
+
+
+/*
+  BRONZE CHALLENGES
+  -----------------
+  Insert the remaining Tracks for the Album Boy (except for the last 2-3, insert those as part of Gold)
+ */
+
+
+/*
+  SILVER CHALLENGES
+  -----------------
+
+  Run the following Query.
+  It gives an error. Read and understand the error, then fix the problem.
+
+  Insert into Track (Name, AlbumId, GenreId, Composer, Milliseconds, Bytes, UnitPrice)
+  values("Extra Track", 348, 1, "U2", 290000, 1234, 0.99);
+*/
+
+
+/*
+  GOLD CHALLENGES
+  -----------------
+  Use 1 insert statement to insert multiple tracks at the same time.
+  Use Google to find the correct syntax for the Insert statement to do this.
+*/
+
+
+
+-- This Drop Table will throw an error if the table doesn't exist. That's ok.
+Drop table Note;
+
+-- Create a table to store notes about songs.
+-- What relationships does this table have with other tables?
+CREATE TABLE Note
+(
+    NoteId INT NOT NULL AUTO_INCREMENT,
+    CustomerId INTEGER  NOT NULL,
+    TrackId INTEGER  NOT NULL,
+    Text Nvarchar(150)  NOT NULL,
+    CONSTRAINT PK_Note PRIMARY KEY  (NoteId),
+    FOREIGN KEY (CustomerId) REFERENCES Customer (CustomerId)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY (TrackId) REFERENCES Track (TrackId)
+    ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+
+
+-- Insert Some comments for tracks
+-- Notice the columns we need to fill, and the ones we ignore.
+Insert Into Note
+  (CustomerId, TrackId, Text)
+Values
+  (1, 3504, 'Always liked this song.'),
+  (1, 3504, 'OMG, Bono sounds so young'),
+  (2, 3504, 'That guitar!!!'),
+  (1, 3504,'Still sounds fresh.');
+
+-- Query the Notes
+Select * from Note;
+
+
+
+
+-- DELETING DATA WITH SQL
+-- NOTE: Use the create_table.sql Script to create the table and Data for this Lesson
+
+
+/*
+  You can delete rows from a table using the 'DELETE' SQL Statement.
+  The syntax is similar to the basic 'SELECT' statement, with a 'WHERE' Clause.
+  However, instead of returning the matching rows, the 'DELETE' statement, deletes them.
+*/
+
+
+-- Just as a SELECT statement without a WHERE clause will return all rows,
+-- A DELETE statement without a WHERE clause will delete all rows.
+delete from Note;
+
+-- Delete a Note with a specific NoteId
+delete from Note where NoteId = 3;
+
+-- Delete all Notes for a Specific Track, by Specific Customer
+delete from Note where TrackId = 3504 and CustomerId = 2;
+
+-- Delete any Notes that mention Bono
+-- Note the wildcard '%' will match any text. So 'Bono' can appear anywhere in the text'
+delete from Note where TEXT Like "%Bono%";
+
+
+/*
+  Since the SELECT and DELETE Statements share the same WHERE clause,
+  it's good practice, when deleting rows, to write a SELECT statement
+  that returns the rows to be deleted, and then convert that into a DELETE statement.
+ */
+
+-- Write a query that returns all tracks for the Album "Boy" (AlbumId = 348)
+select  * from Track where AlbumId = 348;
+
+-- Convert SELECT Statement to a DELETE Statement
+delete from Track where AlbumId = 348;
+
+/*
+  BRONZE CHALLENGES
+  -----------------
+  There are two tracks with running times longer than 5000000 Milliseconds.
+  Write a SELECT Statement that Identifies them.
+  Expected : 2 rows (TrackIds 2820 & 3224)
+*/
+select TrackId from Track where Milliseconds >5000000;
+
+
+/*
+  Find if there are any references to these tracks in the PlayListTrack Table
+  Expected : 4 rows
+ */
+select * from PlaylistTrack where TrackId in (2820, 3224);
+
+/*
+  Find if there are any references to these tracks in the InvoiceLine Table
+  Expected : 2 rows
+ */
+select * from InvoiceLine where TrackId in (2820, 3224);
+
+
+
+/*
+  SILVER CHALLENGES
+  -----------------
+  Convert the SELECT from Track Statement into a DELETE Statement that will Delete these two tracks
+ */
+delete from Track where Milliseconds >5000000;
+
+/*
+  Query the PlaylistTrack and InvoiceLine tables again for the TrackIds (2820 and 3224)
+  You'll find there are still rows in those tables referring to the now deleted Tracks.
+
+  Write Delete Statements for the rows in PlaylistTrack and InvoiceLine that refer to the deleted Tracks
+ */
+
+/*
+  Previously, when you wanted to delete Tracks for a given Album, you needed to query the Album Table
+  to get the AlbumId, and then use that Id in the DELETE From Track statement.
+
+  You can Delete Tracks by Album Title, by using a Subquery. Google Deleting using a SubQuery and try to
+  write a Delete Statement that will delete all Tracks for the Album "Boy"
+ */
+delete from Track
+  where Track.AlbumId in
+        (select Album.AlbumId from Album where Title = "Boy")
+
+
+Peg Column
+select 'America' as Continent, Customer.* from Customer where Country = 'USA' or Country = 'Canada'
+union
+select 'Europe' as Continent, Customer.* from Customer where Country = 'United Kingdom' or Country = 'Spain' or Country = 'Germany';
+this creates a brand new column called continent and allocates America to usa and cananda and allocates europe to uk, spain and germany
